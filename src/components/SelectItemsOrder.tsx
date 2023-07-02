@@ -1,38 +1,23 @@
 import { VFlow } from "bold-ui";
 import React from "react";
-import Select from "react-select";
-import { SingleOptionType } from "./ModalOrder";
+import Select, { SingleValue } from "react-select";
+import { ItemSelectedType, ProductType } from "./ModalOrder";
 import { produtos } from "./Helpers";
 
 interface SelectItemsOrderProps {
-  handleChange(option: SingleOptionType): void;
-  value: SingleOptionType;
+  handleChange(option: SingleValue<ItemSelectedType>): void;
+  value: ItemSelectedType;
 }
 
-interface Product {
-  id: string;
-  item: string;
-  price: number;
-}
+const options: ItemSelectedType[] = convertToSelect(produtos);
 
-interface OptionType {
-  value: string;
-  label: string;
-}
-
-const options: OptionType[] = convertProductsToOptionTypes(produtos);
-
-function convertProductsToOptionTypes(products: Product[]): OptionType[] {
-  return products.map(convertProductToOptionType);
-}
-
-function convertProductToOptionType(product: Product): OptionType {
-  const optionType: OptionType = {
-    value: product.id.toString(),
-    label: `${product.item} - R$${product.price.toFixed(2)}`,
-  };
-
-  return optionType;
+function convertToSelect(products: ProductType[]): ItemSelectedType[] {
+  return products.map((product) => {
+    const { value, label } = product;
+    const formattedPrice = `R$${product.price.toFixed(2)}`;
+    const updatedLabel = `${label} - ${formattedPrice}`;
+    return { value, label: updatedLabel };
+  });
 }
 
 export function SelectItemsOrder(props: SelectItemsOrderProps) {

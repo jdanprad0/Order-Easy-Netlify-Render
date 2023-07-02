@@ -1,7 +1,40 @@
 import axios from "axios";
 import { OptionType } from "../view/EditView";
 
-export const numDesks = 28; // chamar isso ainda
+export const numberTables = 28; // chamar isso ainda
+
+export const typesEmployees: OptionType[] = [
+  {
+    value: 1,
+    label: "Atendimento",
+  },
+  {
+    value: 2,
+    label: "Caixa",
+  },
+  {
+    value: 3,
+    label: "Supervisor",
+  },
+];
+
+export const userRoutes: Record<string, string[]> = {
+  Atendimento: ["/", "/auth", "/perfil", "/sair"],
+  Caixa: ["/", "/auth", "/perfil", "/sair", "/finalizar"],
+  Supervisor: [
+    "/",
+    "/auth",
+    "/perfil",
+    "/sair",
+    "/finalizar",
+    "/cadastrar",
+    "/editar",
+    "/usuarios",
+  ],
+};
+
+export const formatNumberWithTwoDigits = (number: number): string =>
+  number < 10 ? `0${number}` : String(number);
 
 export const handleApiError = (
   error: any,
@@ -22,73 +55,56 @@ export const handleApiError = (
   }, 3000);
 };
 
-export const formatNumberWithTwoDigits = (number: number): string =>
-  number < 10 ? `0${number}` : String(number);
-
-export const typesEmployees: OptionType[] = [
-  {
-    value: 1,
-    label: "Atendimento",
-  },
-  {
-    value: 2,
-    label: "Caixa",
-  },
-  {
-    value: 3,
-    label: "Supervisor",
-  },
-];
-
 export const produtos = [
   {
-    id: "1",
-    item: "Coca Cola",
+    value: "1",
+    label: "Coca Cola",
     price: 3.5,
   },
   {
-    id: "2",
-    item: "Sopa",
+    value: "2",
+    label: "Sopa",
     price: 15.0,
   },
   {
-    id: "3",
-    item: "Bolachinha",
+    value: "3",
+    label: "Bolachinha",
     price: 7.25,
   },
   {
-    id: "4",
-    item: "Sorvete",
+    value: "4",
+    label: "Sorvete",
     price: 8.78,
   },
   {
-    id: "5",
-    item: "Batata Frita (200g)",
+    value: "5",
+    label: "Batata Frita (200g)",
     price: 35.0,
   },
   {
-    id: "6",
-    item: "Hamburguer",
+    value: "6",
+    label: "Hamburguer",
     price: 29.9,
   },
   {
-    id: "7",
-    item: "Camarão",
+    value: "7",
+    label: "Camarão",
     price: 62.0,
+    amount: 0,
   },
   {
-    id: "8",
-    item: "Bife a Milanesa",
+    value: "8",
+    label: "Bife a Milanesa",
     price: 35.33,
   },
   {
-    id: "9",
-    item: "Suco",
+    value: "9",
+    label: "Suco",
     price: 10.0,
   },
   {
-    id: "10",
-    item: "Costelinha",
+    value: "10",
+    label: "Costelinha",
     price: 49.0,
   },
 ];

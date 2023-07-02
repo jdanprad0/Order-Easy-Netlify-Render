@@ -15,10 +15,9 @@ import api from "../api";
 interface FormProfileProps {
   user: UserTypeDB | undefined;
   type: OptionType | undefined;
-  editProfile?: boolean;
-  listUsers?: boolean;
+  editUser?: boolean;
+  viewUser?: boolean;
   addUser?: boolean;
-  viewProfile?: boolean;
 }
 
 export interface FormValues {
@@ -30,7 +29,7 @@ export interface FormValues {
 }
 
 export function FormProfile(props: FormProfileProps) {
-  const { user, editProfile, listUsers, addUser } = props;
+  const { user, editUser, viewUser, addUser } = props;
 
   const history = useHistory();
 
@@ -42,29 +41,38 @@ export function FormProfile(props: FormProfileProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const onSubmit = (values: FormValues) => {
+  const onSubmit = (values: FormValues, form: any) => {
+    form.change("password", "");
+    form.change("passwordConfirm", "");
+
     setIsModalConfirmOpen(true);
     setFormValues(values);
   };
 
   useEffect(() => {
-    const handleSubmit = async (values: FormValues | undefined) => {
+    const handleSubmit = async () => {
       if (isSubmitting && formValues) {
         setIsModalConfirmOpen(false);
         setIsSubmitting(false);
+
         try {
           await api.post("/register", {
             formValues: formValues,
-            editProfile: editProfile,
+            editUser: editUser || viewUser,
           });
-          if (listUsers || addUser) {
-            history.push("/usuarios");
-          } else {
-            setSuccessMessage("Seu perfil foi atualizado com sucesso!");
-            setTimeout(() => {
-              setSuccessMessage("");
-            }, 3000);
+
+          const message = `Perfil ${
+            editUser || viewUser ? "atualizado" : "cadastrado"
+          } com sucesso!`;
+          setSuccessMessage(message);
+
+          if (editUser || addUser) {
+            history.push("/usuarios", { successMessage: message });
           }
+
+          setTimeout(() => {
+            setSuccessMessage("");
+          }, 3000);
         } catch (error) {
           handleApiError(error, setErrorMessage);
         }
@@ -75,9 +83,17 @@ export function FormProfile(props: FormProfileProps) {
     };
 
     if (isSubmitting) {
-      handleSubmit(formValues);
+      handleSubmit();
     }
-  }, [isSubmitting]);
+  }, [
+    isSubmitting,
+    addUser,
+    editUser,
+    formValues,
+    viewUser,
+    history,
+    successMessage,
+  ]);
 
   const TextFieldInput = ({
     input,
@@ -166,7 +182,9 @@ export function FormProfile(props: FormProfileProps) {
         title={"Confirmar atualização?"}
         description={"Deseja salvar suas alterações?"}
       ></ModalConfirm>
-      {successMessage && <Alert variant="success">{successMessage}</Alert>}
+      {successMessage && viewUser && (
+        <Alert variant="success">{successMessage}</Alert>
+      )}
       {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
 
       <Form
@@ -176,23 +194,14 @@ export function FormProfile(props: FormProfileProps) {
             ? {
                 name: user.name,
                 user: user.user,
-                type: user.position,
+                type: user.type,
                 password: "",
                 passwordConfirm: "",
               }
             : undefined
         }
-        render={({ handleSubmit, form }) => (
-          <form
-            onSubmit={(event) => {
-              const promise = handleSubmit(event);
-              form.reset();
-              promise &&
-                promise.then(() => {
-                  form.reset();
-                });
-            }}
-          >
+        render={({ handleSubmit }) => (
+          <form onSubmit={handleSubmit}>
             <Grid gap={2} gapVertical={1} justifyContent="flex-start">
               <Cell lg={6} md={6} sm={12} xs={12}>
                 <Field
@@ -210,7 +219,7 @@ export function FormProfile(props: FormProfileProps) {
                   name="user"
                   label="Usuário"
                   placeholder="Digite o CPF do funcionário"
-                  disabled={editProfile}
+                  disabled={editUser || viewUser}
                   max={11}
                   onIconClick={false}
                   component={TextFieldInput}
@@ -223,6 +232,7 @@ export function FormProfile(props: FormProfileProps) {
                   placeholder="Tipo do funcionário"
                   onIconClick={false}
                   component={SelectInput}
+                  disabled={editUser || viewUser}
                 />
               </Cell>
               <Cell lg={6} md={6} sm={12} xs={12}>
@@ -252,7 +262,7 @@ export function FormProfile(props: FormProfileProps) {
                 />
               </Cell>
               <Cell lg={12} md={12} sm={12} xs={12} style={cellButtonsStyles}>
-                {listUsers && (
+                {(addUser || editUser) && (
                   <Cell lg={1} md={4} sm={6} xs={12}>
                     <Button
                       kind="danger"

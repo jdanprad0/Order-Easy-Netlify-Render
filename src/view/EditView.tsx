@@ -17,36 +17,42 @@ export function EditView() {
 
   const location = useLocation();
 
-  const { id, editProfile, listUsers, addUser, viewProfile } =
-    location.state || {};
+  const { id, editUser, addUser, viewUser } = location.state || {};
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const singleUser = await api.post("/querySingleUser", {
-          user: id ? id : localStorage.getItem("user"),
+          user: editUser ? id : localStorage.getItem("user"),
         });
+        console.log("Entrei");
         setUser(singleUser.data);
       } catch {}
     };
-    if (editProfile && id) fetchUser();
-    else if (!addUser) fetchUser();
-  }, [id, addUser, editProfile]);
+    if (editUser || viewUser || !location.state) fetchUser();
+  }, [id, viewUser, editUser, location.state]);
 
-  const type: OptionType | undefined = user?.position;
+  const type: OptionType | undefined = user?.type;
 
   return (
     <>
       <VFlow>
-        <Header title={!true ? "Perfil" : "Cadastrar usuário"}></Header>
+        <Header
+          title={
+            viewUser
+              ? "Perfil"
+              : addUser
+              ? "Cadastrar usuário"
+              : "Editar usuário"
+          }
+        ></Header>
         <PageContainer>
           <FormProfile
             user={user}
             type={type}
             addUser={addUser}
-            editProfile={editProfile}
-            listUsers={listUsers}
-            viewProfile={viewProfile}
+            editUser={editUser}
+            viewUser={viewUser || !location.state}
           ></FormProfile>
         </PageContainer>
       </VFlow>

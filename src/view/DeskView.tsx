@@ -4,19 +4,17 @@ import { Button, Cell, Grid, Tooltip } from "bold-ui";
 import { Fragment, useEffect, useState } from "react";
 import { ModalOrder } from "../components/ModalOrder";
 import React from "react";
-import { RepeatComponent } from "../components/RepeatComponent";
-import { formatNumberWithTwoDigits } from "../components/Helpers";
+import { formatNumberWithTwoDigits, numberTables } from "../components/Helpers";
 import { Header } from "../components/Header";
 import { PageContainer } from "../components/PageContainer";
 import { ModalConfirm } from "../components/ModalConfirm";
 import api from "../api";
 
 export function DeskView() {
-  const numDesks = 28;
   const [isModalOrderOpen, setIsModalOrderOpen] = useState(false);
   const [isModalConfirmReservation, setIsModalConfirmReservation] =
     useState(false);
-  const [tableNumer, setTableNumber] = useState(0);
+  const [tableNumber, setTableNumber] = useState(0);
   const [data, setData] = useState([]);
 
   useEffect(() => {
@@ -28,44 +26,52 @@ export function DeskView() {
     };
 
     fetchData();
+
+    const interval = setInterval(fetchData, 5000);
+
+    return () => {
+      clearInterval(interval);
+    };
   }, [isModalConfirmReservation]);
 
-  const renderRepeatedContent = (index: number) => {
-    const mesaOcupada = data.find((item) => item === index);
+  const renderRepeatedContent = [];
+
+  for (let mesaAtual = 1; mesaAtual <= numberTables; mesaAtual++) {
+    const mesaOcupada = data.find((item) => item === mesaAtual);
     const typeButton = mesaOcupada ? "danger" : "primary";
     const textTooltip = mesaOcupada ? "Ocupado" : "Clique para reservar";
 
-    return (
-      <Cell xs={12} sm={6} md={4} lg={3}>
+    renderRepeatedContent.push(
+      <Cell xs={12} sm={6} md={4} lg={3} key={mesaAtual}>
         <Tooltip text={textTooltip}>
           <Button
             block
             kind={typeButton}
-            onClick={() => handleButtonClick(index, mesaOcupada)}
+            onClick={() => handleButtonClick(mesaAtual, mesaOcupada)}
             size="large"
             skin="default"
           >
-            MESA {formatNumberWithTwoDigits(index)}
+            MESA {formatNumberWithTwoDigits(mesaAtual)}
           </Button>
         </Tooltip>
       </Cell>
     );
-  };
+  }
 
   const handleButtonClick = (
-    numberTable: number,
+    tableNumber: number,
     mesaOcupada: number | undefined
   ) => {
     mesaOcupada
       ? setIsModalOrderOpen(true)
       : setIsModalConfirmReservation(true);
-    setTableNumber(numberTable);
+    setTableNumber(tableNumber);
   };
 
   const reservarMesa = async () => {
     try {
       await api.post("/insertMesaOcupada", {
-        numero: tableNumer,
+        numero: tableNumber,
       });
       setIsModalConfirmReservation(false);
     } catch {}
@@ -75,7 +81,7 @@ export function DeskView() {
     <p>
       Você deseja reservar a{" "}
       <span css={boldTableNumberStyle}>
-        MESA {formatNumberWithTwoDigits(tableNumer)}
+        MESA {formatNumberWithTwoDigits(tableNumber)}
       </span>
       ?
     </p>
@@ -87,7 +93,7 @@ export function DeskView() {
       <ModalOrder
         open={isModalOrderOpen}
         onClose={() => setIsModalOrderOpen(false)}
-        tableNumer={tableNumer}
+        tableNumber={tableNumber}
       ></ModalOrder>
       <ModalConfirm
         open={isModalConfirmReservation}
@@ -105,9 +111,7 @@ export function DeskView() {
           justifyContent="center"
           wrap
         >
-          <RepeatComponent times={numDesks}>
-            {renderRepeatedContent}
-          </RepeatComponent>
+          {renderRepeatedContent}
         </Grid>
       </PageContainer>
     </Fragment>

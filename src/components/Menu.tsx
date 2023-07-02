@@ -1,6 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Container, Nav, Navbar } from "react-bootstrap";
 import { Context } from "../context/AuthProvider";
 import { useHistory } from "react-router-dom";
@@ -9,17 +9,24 @@ const whiteNavbarToggleIcon = require("../img/navbar-toggle-icon.png");
 
 export function Menu() {
   const { handleLogout } = useContext(Context);
+  const [menuUsuarios, setMenuUsuarios] = useState(false);
+  const [menuFinalizar, setMenuFinalizar] = useState(false);
 
   const history = useHistory();
 
   const redirectToProfile = () => {
     history.push("/perfil", {
-      userView: true,
-      editProfile: true,
-      listUsers: false,
-      addUser: false,
+      viewUser: true,
     });
   };
+
+  const typeUser = localStorage.getItem("type");
+
+  useEffect(() => {
+    setMenuUsuarios(typeUser === "Supervisor");
+    setMenuFinalizar(typeUser === "Supervisor" || typeUser === "Caixa");
+  }, [typeUser]);
+
   return (
     <Navbar
       collapseOnSelect
@@ -35,12 +42,17 @@ export function Menu() {
             <Nav.Link href="/" css={linkStyles}>
               Início
             </Nav.Link>
-            <Nav.Link href="/usuarios" css={linkStyles}>
-              Usuários
-            </Nav.Link>
-            <Nav.Link href="/finalizar" css={linkStyles}>
-              Finalizar
-            </Nav.Link>
+            {typeUser === "Supervisor"}
+            {menuUsuarios && (
+              <Nav.Link href="/usuarios" css={linkStyles}>
+                Usuários
+              </Nav.Link>
+            )}
+            {menuFinalizar && (
+              <Nav.Link href="/finalizar" css={linkStyles}>
+                Finalizar
+              </Nav.Link>
+            )}
             <Nav.Link onClick={redirectToProfile} css={linkStyles}>
               Perfil
             </Nav.Link>

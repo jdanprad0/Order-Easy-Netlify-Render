@@ -6,13 +6,10 @@ import { Header } from "../components/Header";
 import { PageContainer } from "../components/PageContainer";
 import { ModalConfirm } from "../components/ModalConfirm";
 import { OptionType } from "./EditView";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import api from "../api";
-
-interface ListUsersViewProps {
-  num?: number;
-  perfil?: boolean;
-}
+import { Alert } from "react-bootstrap";
+import { handleApiError } from "../components/Helpers";
 
 export interface UserType {
   id: string;
@@ -27,24 +24,29 @@ export interface UserTypeDB {
   _id: string;
   name: string;
   user: number;
-  position: OptionType;
+  type: OptionType;
   password?: string;
 }
 
-export function ListUsersView(props: ListUsersViewProps) {
+export function ListUsersView() {
   const [isModalConfirmOpen, setIsModalConfirmOpen] = useState(false);
 
+  const location = useLocation();
   const history = useHistory();
+
+  const { successMessage } = location.state || {};
+
   const [listUsersDB, setListUsersDB] = useState<UserTypeDB[] | undefined>([
     {
       _id: "",
       name: "",
       user: 0,
-      position: { label: "", value: 0 },
+      type: { label: "", value: 0 },
       password: "",
     },
   ]);
   const [selectedUser, setSelectedUser] = useState<UserTypeDB | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const executeQueryAllUsers = async () => {
     try {
@@ -58,6 +60,16 @@ export function ListUsersView(props: ListUsersViewProps) {
     executeQueryAllUsers();
   }, []);
 
+  useEffect(() => {
+    if (successMessage) {
+      const timerId = setTimeout(() => {
+        history.push(location.pathname, null);
+      }, 3000);
+
+      return () => clearTimeout(timerId);
+    }
+  }, [successMessage, location.pathname, history]);
+
   const handleRemoveClick = (users: UserTypeDB) => {
     setSelectedUser(users);
     setIsModalConfirmOpen(true);
@@ -70,23 +82,22 @@ export function ListUsersView(props: ListUsersViewProps) {
       });
       setIsModalConfirmOpen(false);
       executeQueryAllUsers();
-    } catch {}
+    } catch (error) {
+      handleApiError(error, setErrorMessage);
+      setIsModalConfirmOpen(false);
+    }
   };
 
   const handleEditClick = (user: UserTypeDB) => {
     setSelectedUser(user);
     history.push("/editar", {
       id: user.user,
-      userView: user.user,
-      editProfile: true,
-      listUsers: true,
+      editUser: true,
     });
   };
 
   const handleAddClick = () => {
     history.push("/cadastrar", {
-      listUsers: true,
-      editProfile: false,
       addUser: true,
     });
   };
@@ -96,7 +107,7 @@ export function ListUsersView(props: ListUsersViewProps) {
   };
 
   const renderType = (users: UserTypeDB) => {
-    return users.position.label;
+    return users.type.label;
   };
 
   const renderButton = (users: UserTypeDB) => {
@@ -153,6 +164,18 @@ export function ListUsersView(props: ListUsersViewProps) {
               >
                 Cadastrar novo usuário
               </Button>
+            </Cell>
+            <Cell xs={12} sm={12} md={12} lg={12}>
+              {successMessage && (
+                <Alert variant="success" css={alertStyles}>
+                  {successMessage}
+                </Alert>
+              )}
+              {errorMessage && (
+                <Alert variant="danger" css={alertStyles}>
+                  {errorMessage}
+                </Alert>
+              )}
             </Cell>
             <Cell xs={12} sm={12} md={12} lg={12}>
               <div css={divTableStyles}>
@@ -225,4 +248,8 @@ const boldNameStyle = css`
 
 const buttonCadastrarStyles = css`
   width: 100%;
+`;
+
+const alertStyles = css`
+  margin-bottom: 0 !important;
 `;

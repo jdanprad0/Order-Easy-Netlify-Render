@@ -14,135 +14,109 @@ import {
 import { css } from "@emotion/react";
 import React, { useEffect, useState } from "react";
 import { SelectItemsOrder } from "./SelectItemsOrder";
-import { SingleValue } from "react-select";
 import { TableOrder } from "./TableOrders";
 import NumericInput from "react-numeric-input";
 import { Total } from "./Total";
 import { formatNumberWithTwoDigits, produtos } from "./Helpers";
-import uuid from "react-uuid";
 import api from "../api";
 
 interface ModalOrderProps {
   open: boolean;
   onClose(): void;
-  tableNumer: number;
+  tableNumber: number;
 }
 
-export interface ProductSaveType {
-  id: string;
-  order: string;
+export interface ProductType {
+  value: string;
+  label: string;
+  price: number;
+}
+
+export interface OrderType {
+  value: string;
+  label: string;
+  price: number;
   amount: number;
-  price: number;
-  desk: number;
+  table: number;
 }
 
-interface ProductQueryType {
-  id: string;
-  item: string;
-  price: number;
-}
-
-interface ProductSelectType {
+export interface ItemSelectedType {
   value: string;
   label: string;
 }
 
-export type SingleOptionType = SingleValue<ProductSelectType>;
+const emptyProduct = {
+  value: "",
+  label: "",
+};
 
 export function ModalOrder(props: ModalOrderProps) {
-  const { open, onClose, tableNumer } = props;
+  const { open, onClose, tableNumber } = props;
 
-  const [amountValue, setAmountValue] = useState<number | null>(null);
+  const [ordersTable, setOrdersTable] = useState<OrderType[]>([]);
+  const [selectedOption, setSelectedOption] =
+    useState<ItemSelectedType>(emptyProduct);
+  const [amountValue, setAmountValue] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
-  const [selectedItems, setSelectedItems] = useState<ProductSaveType[]>([]);
-  const [selectedOption, setSelectedOption] = useState<SingleOptionType | null>(
-    null
-  );
+  const [orderModified, setOrderModified] = useState(false);
 
-  const ordersTable = selectedItems.filter((item) => item.desk === tableNumer);
+  // retornar produtos em desks
+  useEffect(() => {}, [ordersTable, setOrdersTable, tableNumber, setTotal]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const orders = await api.post("/queryOrdersByDesk", {
-          numberDesk: tableNumer,
+        const orders = await api.post("/queryOrdersByTable", {
+          tableNumber: tableNumber,
         });
-        setSelectedItems(orders.data);
+        const totalOrders = orders.data.reduce(
+          (total: number, product: OrderType) => {
+            const { amount, price } = product;
+            return total + amount * price;
+          },
+          0
+        );
+        setTotal(totalOrders);
+        setOrdersTable(orders.data);
       } catch {}
     };
-
-    fetchData(); // Chama a função fetchData ao montar o componente
-  }, [open, onClose]);
-
-  useEffect(() => {
-    const total = selectedItems
-      .filter((produto) => produto.desk === tableNumer)
-      .map((produto) => produto.price * produto.amount)
-      .reduce((acumulador, valorAtual) => acumulador + valorAtual, 0);
-
-    setTotal(total);
-  }, [selectedItems, tableNumer, setTotal]);
-
-  function convertSingleOptionTypeToProduct(
-    singleOptionType: SingleOptionType,
-    amountValue: number
-  ): ProductSaveType {
-    const id: string = uuid();
-    const item: string = singleOptionType?.label ? singleOptionType.label : "";
-    const amount: number = amountValue ? amountValue : 0;
-    const productFind: ProductQueryType | undefined = produtos.find(
-      (product) => {
-        return product.id === singleOptionType!.value;
-      }
-    );
-
-    if (productFind) {
-      const price: number = productFind.price;
-
-      const convertedProduct: ProductSaveType = {
-        id: productFind.id,
-        order: item,
-        amount: amount,
-        price: price,
-        desk: tableNumer,
-      };
-
-      return convertedProduct;
-    }
-
-    throw new Error(`Produto de ID ${id} não foi encontrado.`);
-  }
+    fetchData();
+    setOrderModified(false);
+  }, [open, onClose, tableNumber, orderModified, setOrderModified]);
 
   const handleNumericChange = (valueAsNumber: number | null) => {
-    setAmountValue(valueAsNumber);
+    setAmountValue(valueAsNumber ? valueAsNumber : 0);
   };
 
-  const addElementToList = () => {
+  const addElementToList = async () => {
     if (amountValue !== null && amountValue !== 0 && selectedOption !== null) {
-      const element: ProductSaveType = convertSingleOptionTypeToProduct(
-        selectedOption,
-        amountValue
+      const product: ProductType | undefined = produtos!.find(
+        (item) => item.value === selectedOption.value
       );
-      setSelectedItems([...selectedItems, element]);
-      setTotal(Number((total + element.price * element.amount).toFixed(2)));
-      setSelectedOption(null);
-      setAmountValue(0);
+
+      if (product) {
+        const order: OrderType = {
+          ...product,
+          amount: amountValue,
+          table: tableNumber,
+        };
+
+        try {
+          await api.post("/registerOrder", {
+            order: order,
+          });
+        } catch {}
+        setSelectedOption(emptyProduct);
+        setOrderModified(true);
+        setAmountValue(0);
+      }
     }
   };
 
-  const handleSelectChange = (option: SingleOptionType) => {
-    if (option && option.label) {
+  const handleSelectChange = (option: ItemSelectedType) => {
+    if (option) {
       setSelectedOption(option);
     }
-  };
-
-  const handleButtonSaveClick = async () => {
-    try {
-      await api.post("/registerOrder", {
-        pedidos: ordersTable,
-        desk: tableNumer,
-      });
-      onClose();
-    } catch (error) {}
   };
 
   return (
@@ -164,7 +138,7 @@ export function ModalOrder(props: ModalOrderProps) {
                 fill="info"
               />
               <Heading level={1}>
-                Mesa {formatNumberWithTwoDigits(tableNumer)}
+                Mesa {formatNumberWithTwoDigits(tableNumber)}
               </Heading>
             </HFlow>
             <Grid gap={2} gapVertical={1} alignItems="flex-end">
@@ -206,7 +180,7 @@ export function ModalOrder(props: ModalOrderProps) {
                 <div css={divTableStyles}>
                   <TableOrder
                     items={ordersTable}
-                    onChangeItems={setSelectedItems}
+                    setOrderModified={setOrderModified}
                   ></TableOrder>
                 </div>
               </Cell>
@@ -218,11 +192,8 @@ export function ModalOrder(props: ModalOrderProps) {
         </ModalBody>
         <ModalFooter>
           <HFlow justifyContent="flex-end">
-            <Button onClick={onClose} kind="danger">
-              Cancelar
-            </Button>
-            <Button kind="primary" onClick={handleButtonSaveClick}>
-              Concluir
+            <Button kind="normal" onClick={onClose}>
+              Fechar
             </Button>
           </HFlow>
         </ModalFooter>

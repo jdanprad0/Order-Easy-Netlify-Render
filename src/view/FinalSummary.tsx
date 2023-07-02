@@ -7,22 +7,28 @@ import { PageContainer } from "../components/PageContainer";
 import api from "../api";
 
 export function FinalSummary() {
-  const [data, setData] = useState([]);
+  const [mesasOcupadas, setMesasOcupadas] = useState([]);
 
   const fetchDataMesasOcupadas = async () => {
     try {
-      const response = await api.get("/queryMesasOcupadas");
-      setData(response.data);
+      const mesasOcupadas = await api.get("/queryMesasOcupadas");
+      setMesasOcupadas(mesasOcupadas.data);
     } catch {}
   };
 
   useEffect(() => {
     fetchDataMesasOcupadas();
+
+    const interval = setInterval(fetchDataMesasOcupadas, 5000);
+
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
-  const renderRepeatedContent = (numberDesk: number) => (
+  const renderRepeatedContent = (tableNumber: number) => (
     <AccordionFinalSummary
-      numDesk={numberDesk}
+      tableNumber={tableNumber}
       fetchDataMesasOcupadas={fetchDataMesasOcupadas}
     ></AccordionFinalSummary>
   );
@@ -32,7 +38,7 @@ export function FinalSummary() {
       <Header title="Finalizar"></Header>
       <PageContainer>
         <VFlow vSpacing={2}>
-          {data.map((value) => renderRepeatedContent(value))}
+          {mesasOcupadas.map((value) => renderRepeatedContent(value))}
         </VFlow>
       </PageContainer>
     </Fragment>

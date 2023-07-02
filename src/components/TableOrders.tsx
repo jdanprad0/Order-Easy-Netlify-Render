@@ -1,47 +1,46 @@
 /** @jsxImportSource @emotion/react */
 import { Button, DataTable, Icon, Tooltip } from "bold-ui";
 import { css } from "@emotion/react";
-import React, { Dispatch, SetStateAction } from "react";
-import { ProductSaveType } from "./ModalOrder";
+import React from "react";
+import { OrderType, ProductType } from "./ModalOrder";
+import api from "../api";
 
 interface TableOrderProps {
-  items: ProductSaveType[];
-  onChangeItems: Dispatch<SetStateAction<ProductSaveType[]>>;
-}
-
-interface ProductListType {
-  id: string;
-  order: string;
-  amount: number;
-  price: number;
+  items: OrderType[];
+  setOrderModified(value: boolean): void;
 }
 
 export function TableOrder(props: TableOrderProps) {
-  const { items, onChangeItems } = props;
+  const { items, setOrderModified } = props;
 
-  const handleDeleteItem = (itemId: string) => {
-    onChangeItems(items.filter((item) => item.id !== itemId));
+  const handleDeleteItem = async (itemValue: string) => {
+    try {
+      await api.post("/removeOrder", {
+        value: itemValue,
+      });
+      setOrderModified(true);
+    } catch {}
   };
 
-  const renderOrder = (product: ProductListType) => {
-    return product.order;
+  const renderOrder = (product: OrderType) => {
+    return product.label;
   };
 
-  const renderAmount = (product: ProductListType) => {
+  const renderAmount = (product: OrderType) => {
     return product.amount;
   };
 
-  const renderPrice = (product: ProductListType) => {
+  const renderPrice = (product: OrderType) => {
     return (product.price * product.amount).toFixed(2);
   };
 
-  const renderButton = (product: ProductListType) => {
+  const renderButton = (product: ProductType) => {
     return (
       <Tooltip text="Excluir">
         <Button
           size="small"
           skin="ghost"
-          onClick={() => handleDeleteItem(product.id)}
+          onClick={() => handleDeleteItem(product.value)}
         >
           <Icon icon="trashOutline" style={trachIconStyles} />
         </Button>
@@ -50,7 +49,7 @@ export function TableOrder(props: TableOrderProps) {
   };
 
   return (
-    <DataTable<ProductListType>
+    <DataTable<OrderType>
       style={tableOrderStyles}
       columns={[
         {

@@ -18,11 +18,11 @@ import {
 } from "bold-ui";
 import { Total } from "./Total";
 import { ModalConfirm } from "./ModalConfirm";
-import { ProductSaveType } from "./ModalOrder";
 import api from "../api";
+import { OrderType } from "./ModalOrder";
 
 interface AccordionFinalSummaryProps {
-  numDesk: number;
+  tableNumber: number;
   fetchDataMesasOcupadas(): void;
 }
 
@@ -30,24 +30,25 @@ const blueArrow = require("../img/seta-fundo-azul.svg").default;
 const whiteArrow = require("../img/seta-fundo-branco.svg").default;
 
 export function AccordionFinalSummary(props: AccordionFinalSummaryProps) {
-  const { numDesk, fetchDataMesasOcupadas } = props;
+  const { tableNumber, fetchDataMesasOcupadas } = props;
 
-  const [pedidos, setPedidos] = useState<ProductSaveType[]>([]);
+  const [pedidos, setPedidos] = useState<OrderType[]>([]);
   const [modalConfirmOpen, setModalConfirmOpen] = useState(false);
 
   const fetchData = async () => {
+    console.log(tableNumber);
     try {
-      const pedidos = await api.post("/queryOrdersByDesk", {
-        numberDesk: numDesk,
+      const pedidos = await api.post("/queryOrdersByTable", {
+        tableNumber: tableNumber,
       });
       setPedidos(pedidos.data);
     } catch {}
   };
 
-  const handleFreeDesk = async () => {
+  const handleFreeTable = async () => {
     try {
-      await api.post("/freeDesk", {
-        numberDesk: numDesk,
+      await api.post("/freeTable", {
+        tableNumber: tableNumber,
       });
       fetchDataMesasOcupadas();
       fetchData();
@@ -77,7 +78,7 @@ export function AccordionFinalSummary(props: AccordionFinalSummaryProps) {
   const descriptionModalConfirm = (
     <p>
       Deseja finalizar o pedido da
-      <span css={boldDescriptionStyle}> MESA {numDesk}</span>?
+      <span css={boldDescriptionStyle}> MESA {tableNumber}</span>?
     </p>
   );
 
@@ -86,14 +87,14 @@ export function AccordionFinalSummary(props: AccordionFinalSummaryProps) {
       <ModalConfirm
         open={modalConfirmOpen}
         onClose={() => setModalConfirmOpen(false)}
-        onChange={handleFreeDesk}
+        onChange={handleFreeTable}
         title={"Finalizar?"}
         description={descriptionModalConfirm}
       ></ModalConfirm>
       <Accordion>
-        <Accordion.Item eventKey={numDesk.toString()} css={headerStyles}>
+        <Accordion.Item eventKey={tableNumber.toString()} css={headerStyles}>
           <Accordion.Header>
-            Mesa {formatNumberWithTwoDigits(numDesk)}
+            Mesa {formatNumberWithTwoDigits(tableNumber)}
           </Accordion.Header>
           <Accordion.Body>
             <div css={divTableStyles}>
@@ -111,7 +112,7 @@ export function AccordionFinalSummary(props: AccordionFinalSummaryProps) {
                     {pedidos?.map((value, index) => (
                       <TableRow key={index}>
                         <TableCell>{value.amount}</TableCell>
-                        <TableCell>{value.order}</TableCell>
+                        <TableCell>{value.label}</TableCell>
                         <TableCell>{value.price.toFixed(2)}</TableCell>
                         <TableCell style={totalStyles}>
                           R$

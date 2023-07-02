@@ -9,6 +9,7 @@ import { EditView } from "./view/EditView";
 import { FinalSummary } from "./view/FinalSummary";
 import { ListUsersView } from "./view/ListUsersView";
 import { Spinner } from "react-bootstrap";
+import { userRoutes } from "./components/Helpers";
 
 interface CustomRouteProps {
   isPrivate?: boolean;
@@ -30,7 +31,7 @@ const routePaths = [
 
 function CustomRoute(props: CustomRouteProps) {
   const { isPrivate, ...rest } = props;
-  const { loading, authenticated } = useContext(Context);
+  const { loading, authenticated, typeUser } = useContext(Context);
 
   if (loading) {
     return (
@@ -60,6 +61,15 @@ function CustomRoute(props: CustomRouteProps) {
   }
 
   if (authenticated && rest.path === "/auth") {
+    return <Redirect to="/" />;
+  }
+
+  // Verificar se o tipo de usuário tem permissão para acessar a rota
+  if (
+    isPrivate &&
+    userRoutes[typeUser] &&
+    !userRoutes[typeUser].includes(rest.path)
+  ) {
     return <Redirect to="/" />;
   }
 

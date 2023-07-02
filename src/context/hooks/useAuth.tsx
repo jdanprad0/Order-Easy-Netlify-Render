@@ -6,16 +6,20 @@ import { useHistory } from "react-router-dom";
 
 export default function useAuth() {
   const [authenticated, setAuthenticated] = useState(false);
+  const [typeUser, setTypeUser] = useState("");
   const [loading, setLoading] = useState(true);
   const history = useHistory();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    localStorage.getItem("user");
+    const user = localStorage.getItem("user");
+    const type = localStorage.getItem("type");
 
     if (token) {
       api.defaults.headers.Authorization = `Bearer ${JSON.parse(token)}`;
+      api.defaults.headers.User = user;
       setAuthenticated(true);
+      type && setTypeUser(type);
     }
 
     setLoading(false);
@@ -24,10 +28,11 @@ export default function useAuth() {
   const handleLogin = async (values?: FormValues) => {
     try {
       const response = await api.post("/login", values);
-      const { token, user } = response.data;
+      const { token, user, type } = response.data;
 
       localStorage.setItem("token", JSON.stringify(token));
       localStorage.setItem("user", user);
+      localStorage.setItem("type", type);
 
       api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
@@ -48,5 +53,11 @@ export default function useAuth() {
     window.location.href = "/auth";
   }
 
-  return { authenticated, loading, handleLogin, handleLogout };
+  return {
+    authenticated,
+    loading,
+    handleLogin,
+    handleLogout,
+    typeUser,
+  };
 }
