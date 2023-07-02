@@ -17,8 +17,9 @@ import { SelectItemsOrder } from "./SelectItemsOrder";
 import { TableOrder } from "./TableOrders";
 import NumericInput from "react-numeric-input";
 import { Total } from "./Total";
-import { formatNumberWithTwoDigits, produtos } from "./Helpers";
+import { formatNumberWithTwoDigits } from "./Helpers";
 import api from "../api";
+import { v4 as uuidv4 } from "uuid";
 
 interface ModalOrderProps {
   open: boolean;
@@ -33,6 +34,7 @@ export interface ProductType {
 }
 
 export interface OrderType {
+  idOrder: string;
   value: string;
   label: string;
   price: number;
@@ -60,8 +62,18 @@ export function ModalOrder(props: ModalOrderProps) {
   const [total, setTotal] = useState<number>(0);
   const [orderModified, setOrderModified] = useState(false);
 
-  // retornar produtos em desks
-  useEffect(() => {}, [ordersTable, setOrdersTable, tableNumber, setTotal]);
+  const [products, setProducts] = useState<ProductType[]>([]);
+
+  useEffect(() => {
+    const executeQueryAllProducts = async () => {
+      try {
+        const response = await api.get("/queryAllProducts");
+        const allProducts = response.data;
+        setProducts(allProducts);
+      } catch {}
+    };
+    executeQueryAllProducts();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,13 +102,16 @@ export function ModalOrder(props: ModalOrderProps) {
 
   const addElementToList = async () => {
     if (amountValue !== null && amountValue !== 0 && selectedOption !== null) {
-      const product: ProductType | undefined = produtos!.find(
+      const product: ProductType | undefined = products!.find(
         (item) => item.value === selectedOption.value
       );
 
       if (product) {
         const order: OrderType = {
-          ...product,
+          idOrder: uuidv4(),
+          value: product.value,
+          label: product.label,
+          price: product.price,
           amount: amountValue,
           table: tableNumber,
         };
@@ -145,6 +160,7 @@ export function ModalOrder(props: ModalOrderProps) {
               <Cell xs={12} sm={12} md={7} lg={7}>
                 <SelectItemsOrder
                   handleChange={handleSelectChange}
+                  products={products}
                   value={selectedOption}
                 ></SelectItemsOrder>
               </Cell>

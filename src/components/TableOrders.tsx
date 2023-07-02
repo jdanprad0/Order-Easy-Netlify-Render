@@ -13,10 +13,10 @@ interface TableOrderProps {
 export function TableOrder(props: TableOrderProps) {
   const { items, setOrderModified } = props;
 
-  const handleDeleteItem = async (itemValue: string) => {
+  const handleDeleteItem = async (idOrder: string) => {
     try {
       await api.post("/removeOrder", {
-        value: itemValue,
+        idOrder: idOrder,
       });
       setOrderModified(true);
     } catch {}
@@ -34,13 +34,13 @@ export function TableOrder(props: TableOrderProps) {
     return (product.price * product.amount).toFixed(2);
   };
 
-  const renderButton = (product: ProductType) => {
+  const renderButton = (product: OrderType) => {
     return (
       <Tooltip text="Excluir">
         <Button
           size="small"
           skin="ghost"
-          onClick={() => handleDeleteItem(product.value)}
+          onClick={() => handleDeleteItem(product.idOrder)}
         >
           <Icon icon="trashOutline" style={trachIconStyles} />
         </Button>

@@ -2,26 +2,26 @@ import { VFlow } from "bold-ui";
 import React from "react";
 import Select, { SingleValue } from "react-select";
 import { ItemSelectedType, ProductType } from "./ModalOrder";
-import { produtos } from "./Helpers";
 
 interface SelectItemsOrderProps {
   handleChange(option: SingleValue<ItemSelectedType>): void;
   value: ItemSelectedType;
-}
-
-const options: ItemSelectedType[] = convertToSelect(produtos);
-
-function convertToSelect(products: ProductType[]): ItemSelectedType[] {
-  return products.map((product) => {
-    const { value, label } = product;
-    const formattedPrice = `R$${product.price.toFixed(2)}`;
-    const updatedLabel = `${label} - ${formattedPrice}`;
-    return { value, label: updatedLabel };
-  });
+  products: ProductType[];
 }
 
 export function SelectItemsOrder(props: SelectItemsOrderProps) {
-  const { handleChange, value } = props;
+  const { handleChange, value, products } = props;
+
+  const options: ItemSelectedType[] = convertToSelect(products);
+
+  function convertToSelect(products: ProductType[]): ItemSelectedType[] {
+    return products.map((product) => {
+      const { value, label } = product;
+      const formattedPrice = `R$${product.price.toFixed(2)}`;
+      const updatedLabel = `${label} - ${formattedPrice}`;
+      return { value, label: updatedLabel };
+    });
+  }
 
   return (
     <VFlow>

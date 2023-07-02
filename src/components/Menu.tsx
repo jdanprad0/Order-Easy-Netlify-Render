@@ -11,6 +11,7 @@ export function Menu() {
   const { handleLogout } = useContext(Context);
   const [menuUsuarios, setMenuUsuarios] = useState(false);
   const [menuFinalizar, setMenuFinalizar] = useState(false);
+  const [menuProdutos, setMenuProdutos] = useState(false);
 
   const history = useHistory();
 
@@ -25,6 +26,7 @@ export function Menu() {
   useEffect(() => {
     setMenuUsuarios(typeUser === "Supervisor");
     setMenuFinalizar(typeUser === "Supervisor" || typeUser === "Caixa");
+    setMenuProdutos(typeUser === "Supervisor" || typeUser === "Caixa");
   }, [typeUser]);
 
   return (
@@ -46,6 +48,11 @@ export function Menu() {
             {menuUsuarios && (
               <Nav.Link href="/usuarios" css={linkStyles}>
                 Usuários
+              </Nav.Link>
+            )}
+            {menuProdutos && (
+              <Nav.Link href="/produtos" css={linkStyles}>
+                Produtos
               </Nav.Link>
             )}
             {menuFinalizar && (

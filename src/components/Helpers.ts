@@ -20,7 +20,7 @@ export const typesEmployees: OptionType[] = [
 
 export const userRoutes: Record<string, string[]> = {
   Atendimento: ["/", "/auth", "/perfil", "/sair"],
-  Caixa: ["/", "/auth", "/perfil", "/sair", "/finalizar"],
+  Caixa: ["/", "/auth", "/perfil", "/sair", "/finalizar", "/produtos"],
   Supervisor: [
     "/",
     "/auth",
@@ -30,6 +30,7 @@ export const userRoutes: Record<string, string[]> = {
     "/cadastrar",
     "/editar",
     "/usuarios",
+    "/produtos",
   ],
 };
 

@@ -10,6 +10,7 @@ import { FinalSummary } from "./view/FinalSummary";
 import { ListUsersView } from "./view/ListUsersView";
 import { Spinner } from "react-bootstrap";
 import { userRoutes } from "./components/Helpers";
+import { ProductsView } from "./view/ProductsView";
 
 interface CustomRouteProps {
   isPrivate?: boolean;
@@ -25,6 +26,7 @@ const routePaths = [
   "/editar",
   "/finalizar",
   "/usuarios",
+  "/produtos",
   "/sair",
   "/auth",
 ];
@@ -85,6 +87,7 @@ export default function RoutesApp() {
       <CustomRoute isPrivate exact path="/editar" component={EditView} />
       <CustomRoute isPrivate exact path="/finalizar" component={FinalSummary} />
       <CustomRoute isPrivate exact path="/usuarios" component={ListUsersView} />
+      <CustomRoute isPrivate exact path="/produtos" component={ProductsView} />
       <CustomRoute exact path="/sair" component={LoginView} />
       <CustomRoute exact path="/auth" component={LoginView} />
       <Redirect to="/" />;

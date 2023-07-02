@@ -36,7 +36,6 @@ export function AccordionFinalSummary(props: AccordionFinalSummaryProps) {
   const [modalConfirmOpen, setModalConfirmOpen] = useState(false);
 
   const fetchData = async () => {
-    console.log(tableNumber);
     try {
       const pedidos = await api.post("/queryOrdersByTable", {
         tableNumber: tableNumber,
@@ -58,13 +57,7 @@ export function AccordionFinalSummary(props: AccordionFinalSummaryProps) {
 
   useEffect(() => {
     fetchData();
-
-    const interval = setInterval(fetchData, 5000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
+  }, [tableNumber]);
 
   const precoTotal = pedidos.reduce(
     (total, pedido) => total + pedido.price * pedido.amount,
@@ -88,7 +81,7 @@ export function AccordionFinalSummary(props: AccordionFinalSummaryProps) {
         open={modalConfirmOpen}
         onClose={() => setModalConfirmOpen(false)}
         onChange={handleFreeTable}
-        title={"Finalizar?"}
+        title={"Finalizar???"}
         description={descriptionModalConfirm}
       ></ModalConfirm>
       <Accordion>

@@ -18,12 +18,6 @@ export function FinalSummary() {
 
   useEffect(() => {
     fetchDataMesasOcupadas();
-
-    const interval = setInterval(fetchDataMesasOcupadas, 5000);
-
-    return () => {
-      clearInterval(interval);
-    };
   }, []);
 
   const renderRepeatedContent = (tableNumber: number) => (
