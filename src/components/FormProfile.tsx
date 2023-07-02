@@ -33,6 +33,8 @@ export function FormProfile(props: FormProfileProps) {
 
   const history = useHistory();
 
+  const typeUser = localStorage.getItem("type");
+
   const [isModalConfirmOpen, setIsModalConfirmOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formValues, setFormValues] = useState<FormValues | undefined>(
@@ -232,7 +234,10 @@ export function FormProfile(props: FormProfileProps) {
                   placeholder="Tipo do funcionário"
                   onIconClick={false}
                   component={SelectInput}
-                  disabled={editUser || viewUser}
+                  disabled={
+                    (editUser && typeUser !== "Supervisor") ||
+                    (viewUser && typeUser !== "Supervisor")
+                  }
                 />
               </Cell>
               <Cell lg={6} md={6} sm={12} xs={12}>
