@@ -28,7 +28,7 @@ async function queryMesasOcupadas(collection) {
   return docs.map((doc) => doc.numero);
 }
 
-async function insertMesaOcupada(numero, collection) {
+async function insertMesaOcupada(collection, numero) {
   const doc = {
     numero: numero,
   };
