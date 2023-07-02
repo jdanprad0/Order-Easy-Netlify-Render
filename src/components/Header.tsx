@@ -49,8 +49,8 @@ const backgroundStyles = css`
   background-size: cover;
   background-position: center;
 
-  @media (max-width: 768px) {
-    display: none; /* Oculta a imagem em dispositivos móveis com largura máxima de 768px */
+  @media (max-width: 890px) {
+    display: none; /* Oculta a imagem com largura máxima de 890px */
   }
 `;
 

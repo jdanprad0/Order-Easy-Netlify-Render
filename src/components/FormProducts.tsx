@@ -112,7 +112,7 @@ export function FormProducts(props: FormProductsProps) {
       render={({ handleSubmit, form }) => (
         <form onSubmit={handleSubmit}>
           <Grid gap={2} gapVertical={1} alignItems="flex-end">
-            <Cell lg={7} md={7} sm={12} xs={12}>
+            <Cell lg={7} md={6} sm={12} xs={12}>
               <Field
                 name="label"
                 type="text"
@@ -132,7 +132,7 @@ export function FormProducts(props: FormProductsProps) {
                 component={NumberInput}
               />
             </Cell>
-            <Cell lg={2} md={2} sm={4} xs={12}>
+            <Cell lg={2} md={3} sm={4} xs={12}>
               <Button
                 type="submit"
                 kind="primary"
