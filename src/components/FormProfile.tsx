@@ -181,8 +181,10 @@ export function FormProfile(props: FormProfileProps) {
         open={isModalConfirmOpen}
         onClose={() => setIsModalConfirmOpen(false)}
         onChange={() => setIsSubmitting(true)}
-        title={"Confirmar atualização?"}
-        description={"Deseja salvar suas alterações?"}
+        title={`Confirmar ${addUser ? "cadastro" : "atualização"}?`}
+        description={`Você confirma ${
+          addUser ? "o cadastro" : "a atualização"
+        }?`}
       ></ModalConfirm>
       {successMessage && viewUser && (
         <Alert variant="success">{successMessage}</Alert>
