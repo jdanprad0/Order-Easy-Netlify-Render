@@ -76,11 +76,38 @@ async function registerOrder(collection, order) {
   }
 }
 
-async function removeOrder(collection, value) {
+async function removeOrder(collection, idOrder) {
   try {
-    await collection.deleteOne({ value: value });
+    await collection.deleteOne({ idOrder: idOrder });
   } catch {
     return { error: "Erro ao remover pedido." };
+  }
+}
+
+async function queryAllProducts(collection) {
+  const allProducts = await collection
+    .find()
+    .toArray()
+    .catch(() => {
+      return { error: "Erro ao buscar produtos." };
+    });
+
+  return allProducts;
+}
+
+async function addProduct(collection, product) {
+  try {
+    await collection.insertOne(product);
+  } catch {
+    return { error: "Erro ao cadastrar produto." };
+  }
+}
+
+async function removeProduct(collection, idProduct) {
+  try {
+    await collection.deleteOne({ value: idProduct });
+  } catch {
+    return { error: "Erro ao remover produto." };
   }
 }
 
@@ -154,6 +181,9 @@ module.exports = {
   queryOrdersByTable,
   registerOrder,
   removeOrder,
+  queryAllProducts,
+  addProduct,
+  removeProduct,
   hasEmployee,
   insertEmployee,
   queryAllUsers,

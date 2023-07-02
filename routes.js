@@ -14,6 +14,9 @@ const {
   queryOrdersByTable,
   registerOrder,
   removeOrder,
+  queryAllProducts,
+  addProduct,
+  removeProduct,
   hasEmployee,
   insertEmployee,
   queryAllUsers,
@@ -134,6 +137,7 @@ router.post("/queryOrdersByTable", async (req, res) => {
 // registra pedidos de uma mesa
 router.post("/registerOrder", async (req, res) => {
   const { order } = req.body;
+
   const collectionRegisterOrder = getCollection("orders", client);
 
   try {
@@ -144,15 +148,52 @@ router.post("/registerOrder", async (req, res) => {
   }
 });
 
-// remove um único usuário
+// remove um pedido
 router.post("/removeOrder", async (req, res) => {
-  const { value } = req.body;
+  const { idOrder } = req.body;
   const collectionUsers = getCollection("orders", client);
   try {
-    await removeOrder(collectionUsers, value);
+    await removeOrder(collectionUsers, idOrder);
     res.status(200).json({ msg: "Pedido removido com sucesso" });
   } catch {
     return res.status(422).json({ msg: "Erro ao remover pedido" });
+  }
+});
+
+// busca mesas ocupadas
+router.get("/queryAllProducts", async (_, res) => {
+  try {
+    const collection = getCollection("products", client);
+    const allProducts = await queryAllProducts(collection);
+    res.status(200).json(allProducts);
+  } catch (err) {
+    res.status(422).json({ msg: "Erro ao buscar produtos" });
+  }
+});
+
+// registra um produto
+router.post("/addProduct", async (req, res) => {
+  const { product } = req.body;
+  const collectionRegisterOrder = getCollection("products", client);
+
+  try {
+    await addProduct(collectionRegisterOrder, product);
+    res.status(200).json({ msg: "Produto cadastrado com sucesso!" });
+  } catch {
+    return res.status(472).json({ msg: "Erro ao cadastrar produto" });
+  }
+});
+
+// remove um produto
+router.post("/removeProduct", async (req, res) => {
+  const { idProduct } = req.body;
+
+  const collectionUsers = getCollection("products", client);
+  try {
+    await removeProduct(collectionUsers, idProduct);
+    res.status(200).json({ msg: "Produto removido com sucesso" });
+  } catch {
+    return res.status(422).json({ msg: "Erro ao remover produto" });
   }
 });
 
