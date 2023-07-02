@@ -5,6 +5,7 @@ const express = require("express");
 const cors = require("cors");
 const routes = require("./routes");
 const { connectToDatabase } = require("./mongodb");
+const { checkAndInsertUser } = require("./initialConfig");
 
 const app = express();
 const session = require("express-session");
@@ -23,6 +24,15 @@ app.use(
   })
 );
 app.use(express.json()); // configuradno respostas JSON
-app.listen(port, () => console.log("Servidor online na porta", port)); // abrindo a porta para conexões
 
-connectToDatabase(); //conectando com o banco de dados
+async function startServer() {
+  try {
+    await connectToDatabase(); //conectando com o banco de dados
+    await checkAndInsertUser(); // inserindo usuários principais
+    app.listen(port, () => console.log("Servidor online na porta", port)); // abrindo a porta para conexões
+  } catch (error) {
+    console.error("Erro ao iniciar o servidor:", error);
+  }
+}
+
+startServer(); // iniciando o servidor

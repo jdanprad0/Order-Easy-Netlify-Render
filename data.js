@@ -10,8 +10,10 @@ async function getPasswordAndTypeFromCPF(collection, user) {
   const res = await collection.findOne({ user: Number(user) }).catch(() => {
     return { error: "Erro ao buscar usuário pelo CPF." };
   });
-  if (res.password && res.type) {
-    return { dbPassword: res.password, type: res.type };
+  if (res) {
+    if (res.password && res.type) {
+      return { dbPassword: res.password, type: res.type };
+    }
   }
   return null;
 }
