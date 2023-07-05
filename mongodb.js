@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const { MongoClient } = require("mongodb");
 
 // criando um novo cliente do banco de dados
