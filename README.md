@@ -52,6 +52,10 @@ Para iniciar o projeto localmente siga os 4 passos abaixo:
 
     SECRET="4ENp4qSRxW3X7wxrsSWmIBu81GYgNWqPMg4Ff2dapEGhv8w31x"
 
+    # chave hash para token, pode ser qualquer outra sequência alfanumérica
+
+    PRIVATEKEY_TOKEN="bvnZsqBpXv8XFW7ep36J00fAn0vztcXsRmzr76o92mSi3eZ9TH"
+
 2.2 - Variáveis de ambiente do Frontend:
 
     # pode ser qualquer outra sequência alfanumérica
